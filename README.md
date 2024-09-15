@@ -14,16 +14,19 @@
 | User-Agent binding to session                             |     ✅     |
 | Support for tdata / pyrogram .session / telethon .session |     ✅     |
 | Registration in bot                                       |     ✅     |
+| Auto-taps                                                 |     ✅     |
 
 
 
 ## [Settings](https://github.com/Desamod/xKuCoinBot/blob/master/.env-example/)
-| Settings                |                                 Description                                 |
-|-------------------------|:---------------------------------------------------------------------------:|
-| **API_ID / API_HASH**   | Platform data from which to run the Telegram session (by default - android) |
-| **SLEEP_TIME**          |           Sleep time between cycles (by default - [14400, 18000])            |
-| **START_DELAY**         |           Delay between sessions at start (by default - [5, 20])            |
-| **REF_ID**              |                          Ref link for registration                          |
+| Settings                |                                 Description                                  |
+|-------------------------|:----------------------------------------------------------------------------:|
+| **API_ID / API_HASH**   | Platform data from which to run the Telegram session (by default - android)  |
+| **SLEEP_TIME**          |            Sleep time between cycles (by default - [3600, 4000])             |
+| **START_DELAY**         |            Delay between sessions at start (by default - [5, 20])            |
+| **RANDOM_TAPS_COUNT**   |               Taps count per request (by default - [[15, 20]]                |
+| **MIN_ENERGY**          | Minimum amount of available energy, when bot stops tapping (by default - 10) |
+| **REF_ID**              |                          Ref link for registration                           |
 
 ## Quick Start 📚
 

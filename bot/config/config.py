@@ -7,8 +7,10 @@ class Settings(BaseSettings):
     API_ID: int
     API_HASH: str
 
-    SLEEP_TIME: list[int] = [14400, 18000]
+    SLEEP_TIME: list[int] = [3600, 4000]
     START_DELAY: list[int] = [5, 20]
+    RANDOM_TAPS_COUNT: list[int] = [15, 20]
+    MIN_ENERGY: int = 10
     REF_ID: str = 'cm91dGU9JTJGdGFwLWdhbWUlM0ZpbnZpdGVyVXNlcklkJTNEMzQyOTUyMTE3JTI2cmNvZGUlM0RRQlNXUUZVVg'
 
 

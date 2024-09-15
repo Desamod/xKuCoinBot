@@ -1,5 +1,6 @@
 import asyncio
 import base64
+import os
 from time import time
 from urllib.parse import unquote
 
@@ -99,6 +100,7 @@ class Tapper:
                 'extInfo': tg_web_data,
                 'inviterUserId': decoded_link.split('UserId%3D')[1].split('%')[0]
             }
+            http_client.headers['Content-Type'] = 'application/json'
             response = await http_client.post("https://www.kucoin.com/_api/platform-telebot/game/login?lang=en_US",
                                               json=json_data)
 
@@ -152,6 +154,41 @@ class Tapper:
             logger.error(f"{self.session_name} | Unknown error when claiming init reward: {error}")
             await asyncio.sleep(delay=3)
 
+    def generate_random_string(self, length=8):
+        characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+        random_string = ''
+        for _ in range(length):
+            random_index = int((len(characters) * int.from_bytes(os.urandom(1), 'big')) / 256)
+            random_string += characters[random_index]
+        return random_string
+
+    async def send_taps(self, http_client: aiohttp.ClientSession, taps: int, available_taps: int):
+        try:
+            hash_id = self.generate_random_string(length=16)
+            boundary = f'----WebKitFormBoundary{hash_id}'
+            form_data = (
+                f'--{boundary}\r\n'
+                f'Content-Disposition: form-data; name="increment"\r\n\r\n'
+                f'{taps}\r\n'
+                f'--{boundary}\r\n'
+                f'Content-Disposition: form-data; name="molecule"\r\n\r\n'
+                f'{available_taps - taps}\r\n'
+                f'--{boundary}\r\n'
+            )
+
+            http_client.headers['Content-Type'] = f'multipart/form-data; boundary={boundary}'
+            response = await http_client.post('https://www.kucoin.com/_api/xkucoin/platform-telebot/game/gold/increase?lang=en_US',
+                                              data=form_data)
+            http_client.headers['Content-Type'] = 'application/json'
+            response.raise_for_status()
+            response_json = await response.json()
+            return response_json
+
+        except Exception as error:
+            logger.error(f"{self.session_name} | Unknown error when sending taps: {error}")
+            await asyncio.sleep(delay=3)
+            return None
+
     async def run(self, user_agent: str, proxy: str | None) -> None:
         access_token_created_time = 0
         proxy_conn = ProxyConnector().from_url(proxy) if proxy else None
@@ -183,6 +220,30 @@ class Tapper:
                         need_to_check = user_info['needToCheck']
                         if need_to_check:
                             await self.claim_init_reward(http_client=http_client)
+
+                        game_config = user_info['gameConfig']
+                        taps_limit = game_config['feedUpperLimit']
+                        recover_speed = game_config['feedRecoverSpeed']
+                        interval = game_config['goldIncreaseInterval']
+                        available_taps = user_info['feedPreview']['molecule']
+                        if available_taps <= settings.MIN_ENERGY:
+                            sleep_before_taps = int((taps_limit - available_taps) / recover_speed)
+                            logger.info(f'{self.session_name} | Not enough taps, going to sleep '
+                                        f'<y>{round(sleep_before_taps / 60, 1)}</y> min')
+                            await asyncio.sleep(delay=sleep_before_taps)
+                            available_taps = taps_limit
+
+                        while available_taps > settings.MIN_ENERGY:
+                            taps = min(available_taps, randint(settings.RANDOM_TAPS_COUNT[0], settings.RANDOM_TAPS_COUNT[1]))
+                            response = await self.send_taps(http_client=http_client, taps=taps, available_taps=available_taps)
+                            if response:
+                                await asyncio.sleep(delay=interval)
+                                available_taps = available_taps - taps + (interval * recover_speed)
+                                logger.success(f"{self.session_name} | Successful tapped! Got <g>+{taps}</g> Coins | "
+                                               f"Available Taps:<lc>{available_taps}</lc>")
+                            else:
+                                logger.warning(f"{self.session_name} | Failed send taps")
+                                break
 
                     logger.info(f"{self.session_name} | Sleep <y>{round(sleep_time / 60, 1)}</y> min")
                     await asyncio.sleep(delay=sleep_time)
