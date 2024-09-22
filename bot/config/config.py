@@ -9,7 +9,7 @@ class Settings(BaseSettings):
 
     SLEEP_TIME: list[int] = [3600, 4000]
     START_DELAY: list[int] = [5, 20]
-    RANDOM_TAPS_COUNT: list[int] = [15, 20]
+    RANDOM_TAPS_COUNT: list[int] = [40, 55]
     MIN_ENERGY: int = 10
     REF_ID: str = 'cm91dGU9JTJGdGFwLWdhbWUlM0ZpbnZpdGVyVXNlcklkJTNEMzQyOTUyMTE3JTI2cmNvZGUlM0RRQlNXUUZVVg'
 
