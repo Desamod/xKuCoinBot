@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     START_DELAY: list[int] = [5, 20]
     RANDOM_TAPS_COUNT: list[int] = [40, 55]
     MIN_ENERGY: int = 10
-    REF_ID: str = 'cm91dGU9JTJGdGFwLWdhbWUlM0ZpbnZpdGVyVXNlcklkJTNEMzQyOTUyMTE3JTI2cmNvZGUlM0RRQlNXUUZVVg'
+    REF_ID: str = 'cm91dGU9JTJGdGFwLWdhbWUlM0ZpbnZpdGVyVXNlcklkJTNENzI1MzY1MDQxMCUyNnJjb2RlJTNE'
 
 
 settings = Settings()
